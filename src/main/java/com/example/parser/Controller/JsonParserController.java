@@ -29,8 +29,8 @@ public class JsonParserController{
             String[] keyAndValue = removedSpaces.split(":");
             if(keyAndValue.length == 2){
                 if(keyAndValue[0].charAt(0) == '"' && keyAndValue[0].charAt(keyAndValue[0].length()-1) == '"') {
-                    if (!((isNumberOrBracketsOrNull(keyAndValue[1])) ||
-                            (keyAndValue[1].charAt(0) == '"' && keyAndValue[1].charAt(keyAndValue[1].length()-1) == '"'))) {
+                    if (!((isNumberOrBracketsOrNull(keyAndValue[1].trim())) ||
+                            (keyAndValue[1].trim().charAt(0) == '"' && keyAndValue[1].trim().charAt(keyAndValue[1].trim().length()-1) == '"'))) {
                         return false;
                     }
                 }
@@ -51,7 +51,7 @@ public class JsonParserController{
         }
 
         // Regular expression pattern to match numbers, brackets, and empty string
-        String regex = "^(-?\\d+(\\.\\d+)?|true|false|[(){}\\[\\]]|null)$";
+        String regex = "^(-?\\d+(\\.\\d+)?|true|false|\\(\\)|\\{\\}|\\[\\]|null)$";
         boolean ans = str.matches(regex);
         return ans;
     }
