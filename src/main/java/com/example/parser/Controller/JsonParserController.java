@@ -1,6 +1,9 @@
 package com.example.parser.Controller;
 
+import com.example.parser.Model.Person;
 import org.springframework.web.bind.annotation.*;
+
+import java.lang.reflect.Field;
 
 @RestController
 @RequestMapping("/")
@@ -14,7 +17,11 @@ public class JsonParserController{
             System.out.println(jsonFiltered.charAt(i));
         }
         if(jsonBody.startsWith("{") && jsonBody.endsWith("}")){
-            return checkJson(jsonFiltered);
+            boolean check = checkJson(jsonFiltered);
+            if(check) {
+                Person person = parser(jsonFiltered);
+            }
+            return check;
         }
         else {
             return false;
@@ -56,4 +63,35 @@ public class JsonParserController{
         return ans;
     }
 
+    public Person parser(String jsonFiltered) {
+        Person person = new Person();
+        String[] jsonElementList = jsonFiltered.split(",");
+        try {
+            for (String element : jsonElementList) {
+                String removedSpaces = element.trim();
+                String[] keyAndValue = removedSpaces.split(":");
+                Field field = Person.class.getDeclaredField(keyAndValue[0]);
+                field.setAccessible(true);
+                Class<?> fieldType = field.getType();
+                if(fieldType == int.class){
+                    field.setInt(person,Integer.parseInt(keyAndValue[1]));
+                }
+                else if(fieldType == boolean.class) {
+                    field.setBoolean(person, Boolean.parseBoolean(keyAndValue[1]));
+                }
+                else if(fieldType == String.class) {
+                    field.set(person, keyAndValue[1].substring(1, keyAndValue.length));
+                }
+                else{
+                    field.set(person, null);
+                }
+
+            }
+        }
+        catch (NoSuchFieldException |  IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return person;
+
+    }
 }
